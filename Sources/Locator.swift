@@ -105,7 +105,7 @@ public class LocatorManager: NSObject, CLLocationManagerDelegate {
 	internal static let shared = LocatorManager()
 	
 	/// Core location internal manager
-	internal var manager: CLLocationManager
+	public var manager: CLLocationManager
 	
 	/// A Boolean indicating whether the status bar changes its appearance when location services are used in the background.
 	/// This property affects only apps that received always authorization.
