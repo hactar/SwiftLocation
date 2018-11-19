@@ -590,7 +590,6 @@ public class LocatorManager: NSObject, CLLocationManagerDelegate {
 	// can return it without waiting for a new fresh value.
 	private func processLocationRequests() {
 		let location = self.currentLocation
-		print("\(self.locationRequests.list.count) requests in queue")
 		self.locationRequests.list.forEach {
 			if $0.timeout?.hasTimedout ?? false {
 				// Non-recurring request has timed out, complete it
