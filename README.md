@@ -117,7 +117,7 @@ Core Location supports different usage strings for each access level. You must i
 | Usage key                                                 | Required when:                                                                   |
 |-----------------------------------------------------------|----------------------------------------------------------------------------------|
 | `NSLocationWhenInUseUsageDescription`              | The app requests When in Use or Always authorization.                            |
-| `NSLocationAlwaysAndWhenInUseUsagDescription` | The app requests Always authorization.                                           |
+| `NSLocationAlwaysAndWhenInUseUsageDescription` | The app requests Always authorization.                                           |
 | `NSLocationTemporaryUsageDescriptionDictionary`             | Used when you want to temporary extend the precision of your authorization level |
 |                                                           |                                                                                  |
 
@@ -239,7 +239,7 @@ Add it as a dependency in a Swift Package, and add it to your `Package.swift`:
 
 ```swift
 dependencies: [
-  .package(url: "https://github.com/malcommac/SwiftLocation.git", from: "6.0")
+  .package(url: "https://github.com/malcommac/SwiftLocation.git", from: "6.0.0")
 ]
 ```
 # Support This Work ❤️
