@@ -28,12 +28,12 @@ import CoreLocation
 @testable import SwiftLocation
 
 public class MockedLocationManager: LocationManagerProtocol {
-    
+
     let fakeInstance = CLLocationManager()
     public weak var delegate: CLLocationManagerDelegate?
 
     public var allowsBackgroundLocationUpdates: Bool = false
-    
+
     public var isLocationServicesEnabled: Bool = true {
         didSet {
             guard isLocationServicesEnabled != oldValue else { return }
@@ -47,7 +47,7 @@ public class MockedLocationManager: LocationManagerProtocol {
 
         }
     }
-    
+
     public var accuracyAuthorization: CLAccuracyAuthorization = .reducedAccuracy {
         didSet {
             guard accuracyAuthorization != oldValue else { return }
@@ -58,15 +58,14 @@ public class MockedLocationManager: LocationManagerProtocol {
     public var desiredAccuracy: CLLocationAccuracy = 100.0
     public var activityType: CLActivityType = .other
     public var distanceFilter: CLLocationDistance = kCLDistanceFilterNone
-    
+
     public var onValidatePlistConfiguration: ((_ permission: LocationPermission) -> Error?) = { _ in
         return nil
     }
-    
+
     public var onRequestWhenInUseAuthorization: (() -> CLAuthorizationStatus) = { .notDetermined }
     public var onRequestAlwaysAuthorization: (() -> CLAuthorizationStatus) = { .notDetermined }
     public var onRequestValidationForTemporaryAccuracy: ((String) -> Error?) = { _ in return nil }
-
 
     public func updateLocations(event: Tasks.ContinuousUpdateLocation.StreamEvent) {
         switch event {
@@ -97,7 +96,7 @@ public class MockedLocationManager: LocationManagerProtocol {
         }
     }
     #endif
-    
+
     #if !os(watchOS) && !os(tvOS)
     public func updateVisits(event: Tasks.VisitsMonitoring.StreamEvent) {
         switch event {
@@ -107,109 +106,109 @@ public class MockedLocationManager: LocationManagerProtocol {
             delegate?.locationManager?(fakeInstance, didFailWithError: error)
         }
     }
-    
+
     public func updateRegionMonitoring(event: Tasks.RegionMonitoring.StreamEvent) {
         switch event {
         case let .didEnterTo(region):
             delegate?.locationManager?(fakeInstance, didEnterRegion: region)
-            
+
         case let .didExitTo(region):
             delegate?.locationManager?(fakeInstance, didExitRegion: region)
-            
+
         case let .didStartMonitoringFor(region):
             delegate?.locationManager?(fakeInstance, didStartMonitoringFor: region)
-            
+
         case let .monitoringDidFailFor(region, error):
             delegate?.locationManager?(fakeInstance, monitoringDidFailFor: region, withError: error)
-            
+
         }
     }
     #endif
-    
+
     public func validatePlistConfigurationForTemporaryAccuracy(purposeKey: String) throws {
         if let error = onRequestValidationForTemporaryAccuracy(purposeKey) {
             throw error
         }
     }
-    
+
     public func validatePlistConfigurationOrThrow(permission: LocationPermission) throws {
         if let error = onValidatePlistConfiguration(permission) {
             throw error
         }
     }
-    
+
     public func locationServicesEnabled() -> Bool {
         isLocationServicesEnabled
     }
-    
+
     public func requestAlwaysAuthorization() {
         self.authorizationStatus = onRequestAlwaysAuthorization()
     }
-    
+
     public func requestWhenInUseAuthorization() {
         self.authorizationStatus = onRequestWhenInUseAuthorization()
     }
-    
+
     public func requestTemporaryFullAccuracyAuthorization(withPurposeKey purposeKey: String, completion: ((Error?) -> Void)? = nil) {
         self.accuracyAuthorization = .fullAccuracy
         completion?(nil)
     }
-    
+
     public func startUpdatingLocation() {
-        
+
     }
-    
+
     public func stopUpdatingLocation() {
-        
+
     }
-    
+
     public func requestLocation() {
-        
+
     }
-    
+
     public func startMonitoring(for region: CLRegion) {
-        
+
     }
-    
+
     public func stopMonitoring(for region: CLRegion) {
-        
+
     }
-    
+
     public func startMonitoringVisits() {
 
     }
-    
+
     public func stopMonitoringVisits() {
-        
+
     }
-    
+
     public func startMonitoringSignificantLocationChanges() {
-        
+
     }
-    
+
     public func stopMonitoringSignificantLocationChanges() {
-        
+
     }
-    
+
     public func startUpdatingHeading() {
-        
+
     }
-    
+
     public func stopUpdatingHeading() {
-        
+
     }
-    
+
     #if !os(watchOS) && !os(tvOS)
     public func startRangingBeacons(satisfying constraint: CLBeaconIdentityConstraint) {
-        
+
     }
-    
+
     public func stopRangingBeacons(satisfying constraint: CLBeaconIdentityConstraint) {
-    
+
     }
     #endif
-    
+
     public init() {
-        
+
     }
 }

@@ -27,25 +27,25 @@ import Foundation
 import CoreLocation
 
 extension Tasks {
-    
+
     public final class SingleUpdateLocation: AnyTask {
-        
+
         // MARK: - Support Structures
 
         public typealias Continuation = CheckedContinuation<ContinuousUpdateLocation.StreamEvent, Error>
-        
+
         // MARK: - Public Properties
 
         public let uuid = UUID()
         public var cancellable: CancellableTask?
         var continuation: Continuation?
-        
+
         // MARK: - Private Properties
 
         private var accuracyFilters: AccuracyFilters?
         private var timeout: TimeInterval?
         private weak var instance: Location?
-        
+
         // MARK: - Initialization
 
         init(instance: Location, accuracy: AccuracyFilters?, timeout: TimeInterval?) {
@@ -53,7 +53,7 @@ extension Tasks {
             self.accuracyFilters = accuracy
             self.timeout = timeout
         }
-        
+
         // MARK: - Functions
 
         @MainActor
@@ -66,7 +66,7 @@ extension Tasks {
                 instance.locationManager.requestLocation()
             }
         }
-        
+
         public func receivedLocationManagerEvent(_ event: LocationManagerBridgeEvent) {
             switch event {
             case let .receiveNewLocations(locations):
@@ -74,7 +74,7 @@ extension Tasks {
                 guard filteredLocations.isEmpty == false else {
                     return // none of the locations respect passed filters
                 }
-                
+
                 continuation?.resume(returning: .didUpdateLocations(filteredLocations))
                 continuation = nil
                 cancellable?.cancel(task: self)
@@ -86,21 +86,21 @@ extension Tasks {
                 break
             }
         }
-        
+
         public func didCancelled() {
             continuation?.resume(throwing: LocationErrors.cancelled)
             continuation = nil
         }
-        
+
         public func willStart() {
             guard let timeout else {
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak self] in
                 self?.continuation?.resume(throwing: LocationErrors.timeout)
             }
         }
     }
-    
+
 }

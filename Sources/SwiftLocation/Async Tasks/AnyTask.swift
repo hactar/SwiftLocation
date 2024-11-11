@@ -29,31 +29,31 @@ public enum Tasks { }
 
 @MainActor
 public protocol AnyTask: AnyObject {
-    
+
     var cancellable: CancellableTask? { get set }
     var uuid: UUID { get }
     var taskType: ObjectIdentifier { get }
-    
+
     func receivedLocationManagerEvent(_ event: LocationManagerBridgeEvent)
     func didCancelled()
     func willStart()
-    
+
 }
 
 public extension AnyTask {
-    
+
     var taskType: ObjectIdentifier {
         ObjectIdentifier(Self.self)
     }
-    
+
     func didCancelled() { }
     func willStart() { }
-    
+
 }
 
 @MainActor
 public protocol CancellableTask: AnyObject {
-    
+
     func cancel(task: any AnyTask)
-    
+
 }

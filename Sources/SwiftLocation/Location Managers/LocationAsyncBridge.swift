@@ -30,14 +30,14 @@ import CoreLocation
 /// from `CLLocationManagerDelegate`.
 @MainActor
 final class LocationAsyncBridge: CancellableTask {
-    
+
     // MARK: - Private Properties
-    
+
     private var tasks = [AnyTask]()
     weak var location: Location?
 
     // MARK: - Internal function
-    
+
     /// Add a new task to the queued operations to bridge.
     ///
     /// - Parameter task: task to add.
@@ -46,14 +46,14 @@ final class LocationAsyncBridge: CancellableTask {
         tasks.append(task)
         task.willStart()
     }
-    
+
     /// Cancel the execution of a task.
     ///
     /// - Parameter task: task to cancel.
     func cancel(task: AnyTask) {
         cancel(taskUUID: task.uuid)
     }
-    
+
     /// Cancel the execution of a task with a given unique identifier.
     ///
     /// - Parameter uuid: unique identifier of the task to remove
@@ -67,7 +67,7 @@ final class LocationAsyncBridge: CancellableTask {
             }
         }
     }
-    
+
     /// Cancel the task of the given class and optional validated condition.
     ///
     /// - Parameters:
@@ -79,14 +79,14 @@ final class LocationAsyncBridge: CancellableTask {
             let isCorrectType = ($0.taskType == typeToRemove)
             let isConditionValid = (condition == nil ? true : condition!($0))
             let shouldRemove = (isCorrectType && isConditionValid)
-            
+
             if shouldRemove {
                 $0.didCancelled()
             }
             return shouldRemove
         })
     }
-    
+
     /// Dispatch the event to the tasks.
     ///
     /// - Parameter event: event to dispatch.
@@ -94,14 +94,14 @@ final class LocationAsyncBridge: CancellableTask {
         for task in tasks {
             task.receivedLocationManagerEvent(event)
         }
-        
+
         // store cached location
         if case .receiveNewLocations(let locations) = event {
             Task { @MainActor in
                 location?.lastLocation = locations.last
             }
-            
+
         }
     }
-    
+
 }

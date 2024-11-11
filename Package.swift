@@ -9,13 +9,13 @@ let package = Package(
     products: [
         .library(
             name: "SwiftLocation",
-            targets: ["SwiftLocation"]),
+            targets: ["SwiftLocation"])
     ],
     targets: [
         .target(
             name: "SwiftLocation"),
         .testTarget(
             name: "SwiftLocationTests",
-            dependencies: ["SwiftLocation"]),
+            dependencies: ["SwiftLocation"])
     ]
 )

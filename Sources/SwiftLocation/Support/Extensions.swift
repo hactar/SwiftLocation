@@ -29,11 +29,11 @@ import CoreLocation
 // MARK: - CoreLocation Extensions
 
 extension CLLocationManager: LocationManagerProtocol {
-    
+
     public func locationServicesEnabled() -> Bool {
         CLLocationManager.locationServicesEnabled()
     }
- 
+
     /// Evaluate the `Info.plist` file data and throw exceptions in case of misconfiguration.
     ///
     /// - Parameter permission: permission you would to obtain.
@@ -51,17 +51,17 @@ extension CLLocationManager: LocationManagerProtocol {
             }
         }
     }
-    
+
     public func validatePlistConfigurationForTemporaryAccuracy(purposeKey: String) throws {
         guard Bundle.hasTemporaryPermission(purposeKey: purposeKey) else {
             throw LocationErrors.plistNotConfigured
         }
     }
-    
+
 }
 
 extension CLAccuracyAuthorization: CustomStringConvertible {
-    
+
     public var description: String {
         switch self {
         case .fullAccuracy:
@@ -72,11 +72,11 @@ extension CLAccuracyAuthorization: CustomStringConvertible {
             return "Unknown (\(rawValue))"
         }
     }
-    
+
 }
 
 extension CLAuthorizationStatus: CustomStringConvertible {
-    
+
     public var description: String {
         switch self {
         case .notDetermined:        return "notDetermined"
@@ -87,7 +87,7 @@ extension CLAuthorizationStatus: CustomStringConvertible {
         @unknown default:           return "unknown"
         }
     }
-    
+
     var canMonitorLocation: Bool {
         switch self {
         case .authorizedAlways, .authorizedWhenInUse:
@@ -96,17 +96,17 @@ extension CLAuthorizationStatus: CustomStringConvertible {
             return false
         }
     }
-    
+
 }
 
 // MARK: - Foundation Extensions
 
 extension Bundle {
-    
+
     private static let alwaysAndWhenInUse = "NSLocationAlwaysAndWhenInUseUsageDescription"
     private static let whenInUse = "NSLocationWhenInUseUsageDescription"
     private static let temporary = "NSLocationTemporaryUsageDescriptionDictionary"
-    
+
     static func hasTemporaryPermission(purposeKey: String) -> Bool {
         guard let node = Bundle.main.object(forInfoDictionaryKey: temporary) as? NSDictionary,
               let value = node.object(forKey: purposeKey) as? String,
@@ -115,29 +115,29 @@ extension Bundle {
         }
         return true
     }
-    
+
     static func hasWhenInUsePermission() -> Bool {
         !(Bundle.main.object(forInfoDictionaryKey: whenInUse) as? String ?? "").isEmpty
     }
-    
+
     static func hasAlwaysAndWhenInUsePermission() -> Bool {
         !(Bundle.main.object(forInfoDictionaryKey: alwaysAndWhenInUse) as? String ?? "").isEmpty
     }
-    
+
 }
 
 extension UserDefaults {
-        
-    func set(location:CLLocation?, forKey key: String) {
+
+    func set(location: CLLocation?, forKey key: String) {
         guard let location else {
             removeObject(forKey: key)
             return
         }
-        
+
         let locationData = try? NSKeyedArchiver.archivedData(withRootObject: location, requiringSecureCoding: false)
         set(locationData, forKey: key)
     }
-    
+
     func location(forKey key: String) -> CLLocation? {
         guard let locationData = UserDefaults.standard.data(forKey: key) else {
             return nil
@@ -149,6 +149,5 @@ extension UserDefaults {
             return nil
         }
     }
-    
-}
 
+}

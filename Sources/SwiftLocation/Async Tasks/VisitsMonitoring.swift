@@ -28,11 +28,11 @@ import CoreLocation
 
 #if !os(watchOS) && !os(tvOS)
 extension Tasks {
-    
+
     public final class VisitsMonitoring: AnyTask {
-        
+
         // MARK: - Support Structures
-        
+
         /// The event produced by the stream.
         public typealias Stream = AsyncStream<StreamEvent>
 
@@ -41,10 +41,10 @@ extension Tasks {
 
             /// A new visit-related event was received.
             case didVisit(_ visit: CLVisit)
-            
+
             /// Receive an error.
             case didFailWithError(_ error: Error)
-            
+
             public var description: String {
                 switch self {
                 case .didVisit:
@@ -53,7 +53,7 @@ extension Tasks {
                     return "didFailWithError: \(error.localizedDescription)"
                 }
             }
-            
+
             public static func == (lhs: Tasks.VisitsMonitoring.StreamEvent, rhs: Tasks.VisitsMonitoring.StreamEvent) -> Bool {
                 switch (lhs, rhs) {
                 case (let .didVisit(v1), let .didVisit(v2)):
@@ -65,13 +65,13 @@ extension Tasks {
                 }
             }
         }
-        
+
         // MARK: - Public Properties
 
         public let uuid = UUID()
         public var stream: Stream.Continuation?
         public var cancellable: CancellableTask?
-        
+
         // MARK: - Functions
 
         public func receivedLocationManagerEvent(_ event: LocationManagerBridgeEvent) {
@@ -85,6 +85,6 @@ extension Tasks {
             }
         }
     }
-    
+
 }
 #endif

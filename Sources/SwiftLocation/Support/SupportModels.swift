@@ -32,12 +32,12 @@ import CoreLocation
 public typealias AccuracyFilters = [AccuracyFilter]
 
 extension AccuracyFilters {
-    
+
     /// Return the highest value of the accuracy level used as filter
     /// in both horizontal and vertical direction.
     static func highestAccuracyLevel(currentLevel: CLLocationAccuracy = kCLLocationAccuracyReduced, filters: AccuracyFilters?) -> CLLocationAccuracy {
         guard let filters else { return currentLevel }
-        
+
         var value: Double = currentLevel
         for filter in filters {
             switch filter {
@@ -51,7 +51,7 @@ extension AccuracyFilters {
         }
         return value
     }
-    
+
 }
 
 /// Single Accuracy filter.
@@ -66,9 +66,9 @@ public enum AccuracyFilter {
     case course(CLLocationDirectionAccuracy)
     /// Filter using a custom function.
     case custom(_ isIncluded: ((CLLocation) -> Bool))
-                
+
     // MARK: - Internal Functions
-    
+
     /// Return a filtered array of the location which match passed filters.
     ///
     /// - Parameters:
@@ -79,7 +79,7 @@ public enum AccuracyFilter {
         guard let filters else { return locations }
         return locations.filter { AccuracyFilter.isLocation($0, validForFilters: filters) }
     }
-    
+
     /// Return if location is valid for a given set of accuracy filters.
     ///
     /// - Parameters:
@@ -91,7 +91,7 @@ public enum AccuracyFilter {
         let isValid = (firstInvalidFilter == nil)
         return isValid
     }
-    
+
     /// Return if location match `self` filter.
     ///
     /// - Parameter location: location to check.
@@ -110,7 +110,7 @@ public enum AccuracyFilter {
             return isIncluded(location)
         }
     }
-    
+
 }
 
 // MARK: - Location Accuracy
@@ -137,7 +137,7 @@ public enum LocationAccuracy {
     case bestForNavigation
     /// Custom precision, may require precise location authorization.
     case custom(Double)
-    
+
     init(level: CLLocationAccuracy) {
         switch level {
         case kCLLocationAccuracyBest:                 self = .best
@@ -149,7 +149,7 @@ public enum LocationAccuracy {
         default:                                      self = .custom(level)
         }
     }
-    
+
     internal var level: CLLocationAccuracy {
         switch self {
         case .best:                 return kCLLocationAccuracyBest

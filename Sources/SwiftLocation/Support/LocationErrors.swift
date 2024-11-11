@@ -27,25 +27,25 @@ import Foundation
 
 /// Throwable errors
 enum LocationErrors: LocalizedError {
-    
+
     /// Info.plist authorization are not correctly defined.
     case plistNotConfigured
-    
+
     /// System location services are disabled by the user or not available.
     case locationServicesDisabled
-    
+
     /// You must require location authorization from the user before executing the operation.
     case authorizationRequired
-    
+
     /// Not authorized by the user.
     case notAuthorized
-    
+
     /// Operation timeout.
     case timeout
-    
+
     /// Cancelled before operation could complete.
     case cancelled
-    
+
     var errorDescription: String? {
         switch self {
         case .plistNotConfigured:
@@ -62,5 +62,5 @@ enum LocationErrors: LocalizedError {
             return "Cancelled"
         }
     }
-    
+
 }

@@ -29,19 +29,19 @@ import CoreLocation
 
 @MainActor
 final class SwiftLocationTests: XCTestCase {
-    
+
     private var mockLocationManager: MockedLocationManager!
     private var location: Location!
-    
+
     override func setUp() {
         super.setUp()
-        
+
         self.mockLocationManager = MockedLocationManager()
         self.location = Location(locationManager: mockLocationManager)
     }
-    
+
     // MARK: - Tests
-    
+
     /// Tests the location services enabled changes.
     func testMonitoringLocationServicesEnabled() async throws {
         let expectedValues = simulateLocationServicesChanges()
@@ -55,7 +55,7 @@ final class SwiftLocationTests: XCTestCase {
             }
         }
     }
-    
+
     /// Test authorization status changes.
     func testMonitoringAuthorizationStatus() async throws {
         let expectedValues = simulateAuthorizationStatusChanges()
@@ -69,7 +69,7 @@ final class SwiftLocationTests: XCTestCase {
             }
         }
     }
-    
+
     /// Test accuracy authorization changes.
     func testMonitoringAccuracyAuthorization() async throws {
         let expectedValues = simulateAccuracyAuthorizationChanges()
@@ -83,7 +83,7 @@ final class SwiftLocationTests: XCTestCase {
             }
         }
     }
-    
+
     #if !os(tvOS)
     /// Test request for permission with failure in plist configuration
     func testRequestPermissionsFailureWithPlistConfiguration() async throws {
@@ -95,14 +95,14 @@ final class SwiftLocationTests: XCTestCase {
                 return nil
             }
         }
-        
+
         do {
             let newStatus = try await location.requestPermission(.always)
             XCTFail("Permission should fail due to missing plist while it returned \(newStatus)")
         } catch { }
     }
     #endif
-    
+
     func testRequestPermissionWhenInUseSuccess() async throws {
         do {
             let expectedStatus = CLAuthorizationStatus.restricted
@@ -115,7 +115,7 @@ final class SwiftLocationTests: XCTestCase {
             XCTFail("Request should not fail: \(error.localizedDescription)")
         }
     }
-        
+
     #if !os(tvOS)
     func testRequestAlwaysSuccess() async throws {
         do {
@@ -123,7 +123,7 @@ final class SwiftLocationTests: XCTestCase {
             mockLocationManager.onRequestAlwaysAuthorization = {
                 return expectedStatus
             }
-            
+
             let newStatus = try await location.requestPermission(.always)
             XCTAssertEqual(expectedStatus, newStatus)
         } catch {
@@ -131,12 +131,12 @@ final class SwiftLocationTests: XCTestCase {
         }
     }
     #endif
-    
+
     /// Test the request location permission while observing authorization status change.
     func testMonitorAuthorizationWithPermissionRequest() async throws {
 
         let exp = XCTestExpectation()
-        
+
         let initialStatus = mockLocationManager.authorizationStatus
         Task.detached {
             for await event in await self.location.startMonitoringAuthorization() {
@@ -160,15 +160,14 @@ final class SwiftLocationTests: XCTestCase {
 #endif
         }
 
-        
         await fulfillment(of: [exp], timeout: 500)
     }
-    
+
     /// Test increment of precision and monitoring.
     func testRequestPrecisionPosition() async throws {
         mockLocationManager.authorizationStatus = .notDetermined
         XCTAssertEqual(mockLocationManager.accuracyAuthorization, .reducedAccuracy)
-        
+
         #if os(macOS)
         mockLocationManager.onRequestAlwaysAuthorization = { return .authorizedAlways }
         let newStatus = try await location.requestPermission(.always)
@@ -178,21 +177,21 @@ final class SwiftLocationTests: XCTestCase {
         let newStatus = try await location.requestPermission(.whenInUse)
         XCTAssertEqual(newStatus, .authorizedWhenInUse)
         #endif
-        
+
         // Test misconfigured Info.plist file
         do {
-            mockLocationManager.onRequestValidationForTemporaryAccuracy = { purposeKey in
+            mockLocationManager.onRequestValidationForTemporaryAccuracy = { _ in
                 return LocationErrors.plistNotConfigured
             }
-            let _ = try await location.requestTemporaryPrecisionAuthorization(purpose: "test")
+            _ = try await location.requestTemporaryPrecisionAuthorization(purpose: "test")
             XCTFail("This should fail")
         } catch {
             XCTAssertEqual(error as? LocationErrors, LocationErrors.plistNotConfigured)
         }
-        
+
         // Test correct configuration
         do {
-            mockLocationManager.onRequestValidationForTemporaryAccuracy = { purposeKey in
+            mockLocationManager.onRequestValidationForTemporaryAccuracy = { _ in
                 return nil
             }
             let newStatus = try await location.requestTemporaryPrecisionAuthorization(purpose: "test")
@@ -201,7 +200,7 @@ final class SwiftLocationTests: XCTestCase {
             XCTFail("This should not fail: \(error.localizedDescription)")
         }
     }
-    
+
     #if !os(tvOS)
     /// Test stream of updates for locations.
     func testUpdatingLocations() async throws {
@@ -225,7 +224,7 @@ final class SwiftLocationTests: XCTestCase {
         }
     }
     #endif
-    
+
     /// Test one shot request method.
     func testRequestLocation() async throws {
         // Request authorization
@@ -240,7 +239,7 @@ final class SwiftLocationTests: XCTestCase {
         simulateRequestLocationDelayedResponse(event: .didFailed(LocationErrors.notAuthorized))
         let e1 = try await self.location.requestLocation()
         XCTAssertEqual(e1.error as? LocationErrors, LocationErrors.notAuthorized)
-        
+
         // Check the return of several location
         let now = Date()
         let l1 = CLLocation(
@@ -259,8 +258,7 @@ final class SwiftLocationTests: XCTestCase {
         let e2 = try await self.location.requestLocation()
         XCTAssertEqual(e2.location, l3)
         XCTAssertEqual(e2.locations?.count, 3)
-        
-        
+
         // Check the timeout with a filtered location
         do {
             let nonValidLocation = CLLocation(
@@ -268,14 +266,14 @@ final class SwiftLocationTests: XCTestCase {
                 altitude: 100, horizontalAccuracy: 50, verticalAccuracy: 20, timestamp: Date()
             )
             simulateRequestLocationDelayedResponse(event: .didUpdateLocations([nonValidLocation]))
-            
-            let _ = try await self.location.requestLocation(accuracy: [
+
+            _ = try await self.location.requestLocation(accuracy: [
                 .horizontal(100)
             ], timeout: 2)
         } catch {
             XCTAssertEqual(error as? LocationErrors, LocationErrors.timeout)
         }
-        
+
         // Check the return of some non filtered locations
         do {
             let now = Date()
@@ -295,14 +293,14 @@ final class SwiftLocationTests: XCTestCase {
                 coordinate: CLLocationCoordinate2D(latitude: 40, longitude: 10),
                 altitude: 100, horizontalAccuracy: 1, verticalAccuracy: 1, timestamp: now.addingTimeInterval(-6)
             )
-            
+
             simulateRequestLocationDelayedResponse(event: .didUpdateLocations([
                 nonValidLocationByVerticalAccuracy,
                 validLocation1,
                 nonValidLocationByHorizontalAccuracy,
                 validLocation2
             ]))
-            
+
             let event = try await self.location.requestLocation(accuracy: [
                 .horizontal(200),
                 .vertical(100)
@@ -314,7 +312,7 @@ final class SwiftLocationTests: XCTestCase {
         }
 
     }
-    
+
     #if !os(watchOS) && !os(tvOS)
     func testMonitorCLRegion() async throws {
         let (expectedValues, region) = simulateRegions()
@@ -329,7 +327,7 @@ final class SwiftLocationTests: XCTestCase {
         }
     }
     #endif
-    
+
     #if !os(watchOS) && !os(tvOS)
     func testMonitoringVisits() async throws {
         let expectedValues = simulateVisits()
@@ -344,7 +342,7 @@ final class SwiftLocationTests: XCTestCase {
         }
     }
     #endif
-    
+
     #if !os(watchOS) && !os(tvOS)
     func testMonitoringSignificantLocationChanges() async throws {
         let expectedValues = simulateSignificantLocations()
@@ -359,16 +357,16 @@ final class SwiftLocationTests: XCTestCase {
         }
     }
     #endif
-    
+
     #if !os(tvOS)
     func testAllowsBackgroundLocationUpdates() async throws {
         location.allowsBackgroundLocationUpdates = true
         XCTAssertEqual(location.allowsBackgroundLocationUpdates, location.locationManager.allowsBackgroundLocationUpdates)
     }
     #endif
-        
+
     // MARK: - Private Functions
-    
+
     #if !os(watchOS) && !os(tvOS)
     private func simulateSignificantLocations() -> [Tasks.SignificantLocationMonitoring.StreamEvent] {
         let sequence: [Tasks.SignificantLocationMonitoring.StreamEvent] = [
@@ -394,7 +392,7 @@ final class SwiftLocationTests: XCTestCase {
         return sequence
     }
     #endif
-    
+
     #if !os(watchOS) && !os(tvOS)
     private func simulateVisits() -> [Tasks.VisitsMonitoring.StreamEvent] {
         let sequence: [Tasks.VisitsMonitoring.StreamEvent] = [
@@ -410,7 +408,7 @@ final class SwiftLocationTests: XCTestCase {
         return sequence
     }
     #endif
-    
+
     #if !os(watchOS) && !os(tvOS)
     private func simulateRegions() -> (sequence: [Tasks.RegionMonitoring.StreamEvent], region: CLRegion) {
         let region = CLBeaconRegion(uuid: UUID(), identifier: "beacon_1")
@@ -428,13 +426,13 @@ final class SwiftLocationTests: XCTestCase {
         return (sequence, region)
     }
     #endif
-    
+
     private func simulateRequestLocationDelayedResponse(event: Tasks.ContinuousUpdateLocation.StreamEvent) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
             self.mockLocationManager.updateLocations(event: event)
         })
     }
-    
+
     private func simulateLocationUpdates() -> [Tasks.ContinuousUpdateLocation.StreamEvent] {
         #if os(iOS)
         let sequence: [Tasks.ContinuousUpdateLocation.StreamEvent] = [
@@ -499,20 +497,19 @@ final class SwiftLocationTests: XCTestCase {
             ])
         ]
         #endif
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
             for event in sequence {
                 self.mockLocationManager.updateLocations(event: event)
                 usleep(10) // 0.1s
             }
         })
-        
+
         return sequence
     }
-    
-    
+
     private func simulateAccuracyAuthorizationChanges() -> [CLAccuracyAuthorization] {
-        let sequence : [CLAccuracyAuthorization] = [.fullAccuracy, .fullAccuracy, .fullAccuracy, .reducedAccuracy]
+        let sequence: [CLAccuracyAuthorization] = [.fullAccuracy, .fullAccuracy, .fullAccuracy, .reducedAccuracy]
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
             for value in sequence {
                 self.mockLocationManager.accuracyAuthorization = value
@@ -521,12 +518,12 @@ final class SwiftLocationTests: XCTestCase {
         })
         return [.fullAccuracy, .reducedAccuracy]
     }
-    
+
     private func simulateAuthorizationStatusChanges() -> [CLAuthorizationStatus] {
         #if os(macOS)
-        let sequence : [CLAuthorizationStatus] = [.notDetermined, .restricted, .denied, .denied, .authorizedAlways]
+        let sequence: [CLAuthorizationStatus] = [.notDetermined, .restricted, .denied, .denied, .authorizedAlways]
         #else
-        let sequence : [CLAuthorizationStatus] = [.notDetermined, .restricted, .denied, .denied, .authorizedWhenInUse, .authorizedAlways]
+        let sequence: [CLAuthorizationStatus] = [.notDetermined, .restricted, .denied, .denied, .authorizedWhenInUse, .authorizedAlways]
         #endif
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
             for value in sequence {
@@ -534,14 +531,14 @@ final class SwiftLocationTests: XCTestCase {
                 usleep(10) // 0.1s
             }
         })
-        
+
         #if os(macOS)
         return [.restricted, .denied, .authorizedAlways]
         #else
         return [.restricted, .denied, .authorizedWhenInUse, .authorizedAlways]
         #endif
     }
-    
+
     private func simulateLocationServicesChanges() -> [Bool] {
         let sequence = [false, true, false, true, true, true, false] // only real changes are detected
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
@@ -552,5 +549,5 @@ final class SwiftLocationTests: XCTestCase {
         })
         return [false, true, false, true, false]
     }
-    
+
 }
