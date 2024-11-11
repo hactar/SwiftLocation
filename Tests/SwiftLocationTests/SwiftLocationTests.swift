@@ -27,6 +27,7 @@ import XCTest
 import CoreLocation
 @testable import SwiftLocation
 
+@MainActor
 final class SwiftLocationTests: XCTestCase {
     
     private var mockLocationManager: MockedLocationManager!
@@ -133,9 +134,7 @@ final class SwiftLocationTests: XCTestCase {
     
     /// Test the request location permission while observing authorization status change.
     func testMonitorAuthorizationWithPermissionRequest() async throws {
-        mockLocationManager.authorizationStatus = .notDetermined
-        XCTAssertEqual(location.authorizationStatus, .notDetermined)
-    
+
         let exp = XCTestExpectation()
         
         let initialStatus = mockLocationManager.authorizationStatus
@@ -146,18 +145,23 @@ final class SwiftLocationTests: XCTestCase {
             }
         }
 
-        sleep(1)
-        #if os(macOS)
-        mockLocationManager.onRequestAlwaysAuthorization = { return .authorizedAlways }
-        let newStatus = try await location.requestPermission(.always)
-        XCTAssertEqual(newStatus, .authorizedAlways)
-        #else
-        mockLocationManager.onRequestWhenInUseAuthorization = { return .authorizedWhenInUse }
-        let newStatus = try await location.requestPermission(.whenInUse)
-        XCTAssertEqual(newStatus, .authorizedWhenInUse)
-        #endif
+        Task {
+            try await Task.sleep(nanoseconds: 100_000_000)
+            mockLocationManager.authorizationStatus = .notDetermined
+            XCTAssertEqual(location.authorizationStatus, .notDetermined)
+#if os(macOS)
+            mockLocationManager.onRequestAlwaysAuthorization = { return .authorizedAlways }
+            let newStatus = try await location.requestPermission(.always)
+            XCTAssertEqual(newStatus, .authorizedAlways)
+#else
+            mockLocationManager.onRequestWhenInUseAuthorization = { return .authorizedWhenInUse }
+            let newStatus = try await location.requestPermission(.whenInUse)
+            XCTAssertEqual(newStatus, .authorizedWhenInUse)
+#endif
+        }
+
         
-        await fulfillment(of: [exp])
+        await fulfillment(of: [exp], timeout: 500)
     }
     
     /// Test increment of precision and monitoring.

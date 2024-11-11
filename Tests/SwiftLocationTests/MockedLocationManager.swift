@@ -43,7 +43,8 @@ public class MockedLocationManager: LocationManagerProtocol {
     public var authorizationStatus: CLAuthorizationStatus = .notDetermined {
         didSet {
             guard authorizationStatus != oldValue else { return }
-            delegate?.locationManagerDidChangeAuthorization?(fakeInstance)
+            self.delegate?.locationManagerDidChangeAuthorization?(fakeInstance)
+
         }
     }
     

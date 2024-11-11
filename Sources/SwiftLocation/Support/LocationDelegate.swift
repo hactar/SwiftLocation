@@ -28,7 +28,8 @@ import CoreLocation
 
 /// This is the class which receive events from the `LocationManagerProtocol` implementation
 /// and dispatch to the bridged tasks.
-final class LocationDelegate: NSObject, CLLocationManagerDelegate {
+@MainActor
+final class LocationDelegate: NSObject, @preconcurrency CLLocationManagerDelegate {
     
     private weak var asyncBridge: LocationAsyncBridge?
     
@@ -42,26 +43,34 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        asyncBridge?.dispatchEvent(.didChangeAuthorization(locationManager.authorizationStatus))
-        asyncBridge?.dispatchEvent(.didChangeAccuracyAuthorization(locationManager.accuracyAuthorization))
-        asyncBridge?.dispatchEvent(.didChangeLocationEnabled(locationManager.locationServicesEnabled()))
+        
+            asyncBridge?.dispatchEvent(.didChangeAuthorization(locationManager.authorizationStatus))
+            asyncBridge?.dispatchEvent(.didChangeAccuracyAuthorization(locationManager.accuracyAuthorization))
+            asyncBridge?.dispatchEvent(.didChangeLocationEnabled(locationManager.locationServicesEnabled()))
+        
     }
     
     // MARK: - Location Updates
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
         asyncBridge?.dispatchEvent(.receiveNewLocations(locations: locations))
+        
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+
         asyncBridge?.dispatchEvent(.didFailWithError(error))
+        
     }
     
     // MARK: - Heading Updates
     
     #if os(iOS)
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+
         asyncBridge?.dispatchEvent(.didUpdateHeading(newHeading))
+        
     }
     #endif
     
@@ -74,6 +83,7 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     
     func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
         asyncBridge?.dispatchEvent(.locationUpdatesResumed)
+        
     }
     #endif
     
@@ -82,18 +92,26 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     #if os(iOS)
     func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
         asyncBridge?.dispatchEvent(.monitoringDidFailFor(region: region, error: error))
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        
         asyncBridge?.dispatchEvent(.didEnterRegion(region))
+        
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+
         asyncBridge?.dispatchEvent(.didExitRegion(region))
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
+       
         asyncBridge?.dispatchEvent(.didStartMonitoringFor(region))
+        
     }
     #endif
     
@@ -101,7 +119,9 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     
     #if os(iOS)
     func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
+
         asyncBridge?.dispatchEvent(.didVisit(visit: visit))
+        
     }
     #endif
     
@@ -109,11 +129,16 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     // MARK: - Beacons Ranging
         
     func locationManager(_ manager: CLLocationManager, didRange beacons: [CLBeacon], satisfying beaconConstraint: CLBeaconIdentityConstraint) {
+
         asyncBridge?.dispatchEvent(.didRange(beacons: beacons, constraint: beaconConstraint))
+        
+        
     }
         
     func locationManager(_ manager: CLLocationManager, didFailRangingFor beaconConstraint: CLBeaconIdentityConstraint, error: Error) {
+        
         asyncBridge?.dispatchEvent(.didFailRanginFor(constraint: beaconConstraint, error: error))
+        
     }
     #endif
     

@@ -28,6 +28,7 @@ import CoreLocation
 
 /// This bridge is used to link the object which manage the underlying events
 /// from `CLLocationManagerDelegate`.
+@MainActor
 final class LocationAsyncBridge: CancellableTask {
     
     // MARK: - Private Properties
@@ -96,7 +97,10 @@ final class LocationAsyncBridge: CancellableTask {
         
         // store cached location
         if case .receiveNewLocations(let locations) = event {
-            location?.lastLocation = locations.last
+            Task { @MainActor in
+                location?.lastLocation = locations.last
+            }
+            
         }
     }
     

@@ -56,6 +56,7 @@ extension Tasks {
         
         // MARK: - Functions
 
+        @MainActor
         func run() async throws -> ContinuousUpdateLocation.StreamEvent {
             try await withCheckedThrowingContinuation { continuation in
                 guard let instance = self.instance else { return }

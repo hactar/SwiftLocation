@@ -27,6 +27,7 @@ import Foundation
 
 public enum Tasks { }
 
+@MainActor
 public protocol AnyTask: AnyObject {
     
     var cancellable: CancellableTask? { get set }
@@ -50,7 +51,7 @@ public extension AnyTask {
     
 }
 
-
+@MainActor
 public protocol CancellableTask: AnyObject {
     
     func cancel(task: any AnyTask)

@@ -28,6 +28,7 @@ import CoreLocation
 
 extension Tasks {
     
+    @MainActor
     public final class LocationServicesEnabled: AnyTask {
         
         // MARK: - Support Structures

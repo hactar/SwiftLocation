@@ -28,6 +28,7 @@ import CoreLocation
 
 /// Instantiate this class to query and setup the Location Services and all the function
 /// of the library itself.
+@MainActor
 public final class Location {
     
     // MARK: - Private Properties
@@ -67,7 +68,7 @@ public final class Location {
     public var locationServicesEnabled: Bool {
         get async {
             await Task.detached {
-                self.locationManager.locationServicesEnabled()
+                await self.locationManager.locationServicesEnabled()
             }.value
         }
     }
@@ -158,13 +159,17 @@ public final class Location {
     
     /// Initiate a new async stream to monitor the status of the location services.
     /// - Returns: observable async stream.
+    @MainActor
     public func startMonitoringLocationServices() async -> Tasks.LocationServicesEnabled.Stream {
         let task = Tasks.LocationServicesEnabled()
         return Tasks.LocationServicesEnabled.Stream { stream in
             task.stream = stream
             asyncBridge.add(task: task)
             stream.onTermination = { @Sendable _ in
-                self.stopMonitoringLocationServices()
+                Task { @MainActor in
+                    self.stopMonitoringLocationServices()
+                }
+                
             }
         }
     }
@@ -185,7 +190,10 @@ public final class Location {
             task.stream = stream
             asyncBridge.add(task: task)
             stream.onTermination = { @Sendable _ in
-                self.stopMonitoringAuthorization()
+                Task { @MainActor in
+                    self.stopMonitoringAuthorization()
+                }
+                
             }
         }
     }
@@ -206,7 +214,10 @@ public final class Location {
             task.stream = stream
             asyncBridge.add(task: task)
             stream.onTermination = { @Sendable _ in
-                self.stopMonitoringAccuracyAuthorization()
+                Task { @MainActor in
+                    self.stopMonitoringAccuracyAuthorization()
+                }
+                
             }
         }
     }
@@ -272,7 +283,10 @@ public final class Location {
             
             locationManager.startUpdatingLocation()
             stream.onTermination = { @Sendable _ in
-                self.asyncBridge.cancel(task: task)
+                Task { @MainActor in
+                    self.asyncBridge.cancel(task: task)
+                }
+                
             }
         }
     }
@@ -301,7 +315,10 @@ public final class Location {
         return try await withTaskCancellationHandler {
             try await task.run()
         } onCancel: {
-            asyncBridge.cancel(task: task)
+            Task { @MainActor in
+                asyncBridge.cancel(task: task)
+            }
+            
         }
     }
     
@@ -319,7 +336,10 @@ public final class Location {
             asyncBridge.add(task: task)
             locationManager.startMonitoring(for: region)
             stream.onTermination = { @Sendable _ in
-                self.asyncBridge.cancel(task: task)
+                Task { @MainActor in
+                    self.asyncBridge.cancel(task: task)
+                }
+                
             }
         }
     }
@@ -347,7 +367,10 @@ public final class Location {
             asyncBridge.add(task: task)
             locationManager.startMonitoringVisits()
             stream.onTermination = { @Sendable _ in
-                self.stopMonitoringVisits()
+                Task { @MainActor in
+                    self.stopMonitoringVisits()
+                }
+                
             }
         }
     }
@@ -372,7 +395,10 @@ public final class Location {
             asyncBridge.add(task: task)
             locationManager.startMonitoringSignificantLocationChanges()
             stream.onTermination = { @Sendable _ in
-                self.stopMonitoringSignificantLocationChanges()
+                Task { @MainActor in
+                    self.stopMonitoringSignificantLocationChanges()
+                }
+                
             }
         }
     }
@@ -397,7 +423,10 @@ public final class Location {
             asyncBridge.add(task: task)
             locationManager.startUpdatingHeading()
             stream.onTermination = { @Sendable _ in
-                self.stopUpdatingHeading()
+                Task { @MainActor in
+                    self.stopUpdatingHeading()
+                }
+                
             }
         }
     }
@@ -423,7 +452,10 @@ public final class Location {
             asyncBridge.add(task: task)
             locationManager.startRangingBeacons(satisfying: satisfying)
             stream.onTermination = { @Sendable _ in
-                self.stopRangingBeacons(satisfying: satisfying)
+                Task { @MainActor in
+                    self.stopRangingBeacons(satisfying: satisfying)
+                }
+                
             }
         }
     }
@@ -450,7 +482,10 @@ public final class Location {
         return try await withTaskCancellationHandler {
             try await task.requestTemporaryPermission(purposeKey: purposeKey)
         } onCancel: {
-            asyncBridge.cancel(task: task)
+            Task { @MainActor in
+                asyncBridge.cancel(task: task)
+            }
+            
         }
     }
     
@@ -462,7 +497,10 @@ public final class Location {
         return try await withTaskCancellationHandler {
             try await task.requestWhenInUsePermission()
         } onCancel: {
-            asyncBridge.cancel(task: task)
+            Task { @MainActor in
+                asyncBridge.cancel(task: task)
+            }
+            
         }
     }
     
@@ -475,7 +513,10 @@ public final class Location {
         return try await withTaskCancellationHandler {
             try await task.requestAlwaysPermission()
         } onCancel: {
-            asyncBridge.cancel(task: task)
+            Task { @MainActor in
+                asyncBridge.cancel(task: task)
+            }
+            
         }
     }
     #endif

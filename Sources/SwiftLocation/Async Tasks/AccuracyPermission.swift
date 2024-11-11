@@ -61,6 +61,7 @@ extension Tasks {
             }
         }
         
+        @MainActor
         func requestTemporaryPermission(purposeKey: String) async throws -> CLAccuracyAuthorization {
             try await withCheckedThrowingContinuation { continuation in
                 guard let instance = self.instance else { return }
