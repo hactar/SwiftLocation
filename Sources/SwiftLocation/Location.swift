@@ -43,14 +43,14 @@ public final class Location {
     /// and dispatch them to the `asyncBridge` through the final output function.
     private(set) var locationDelegate: LocationDelegate
 
-    /// Cache used to store some bits of the data retrived by the underlying core location service.
+    /// Cache used to store some bits of the data retrieved by the underlying core location service.
     private let cache = UserDefaults(suiteName: "com.swiftlocation.cache")
     private let locationCacheKey = "lastLocation"
 
     // MARK: - Public Properties
 
     /// The last received location from underlying Location Manager service.
-    /// This is persistent between sesssions and store the latest result with no
+    /// This is persistent between sessions and store the latest result with no
     /// filters or logic behind.
     public internal(set) var lastLocation: CLLocation? {
         get {

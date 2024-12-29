@@ -26,7 +26,7 @@
 import Foundation
 
 /// Throwable errors
-enum LocationErrors: LocalizedError {
+public enum LocationErrors: LocalizedError {
 
     /// Info.plist authorization are not correctly defined.
     case plistNotConfigured
@@ -45,8 +45,11 @@ enum LocationErrors: LocalizedError {
 
     /// Cancelled before operation could complete.
     case cancelled
+    
+    /// LocationManager did not return any location
+    case noLocation
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .plistNotConfigured:
             return "Missing authorization into Info.plist"
@@ -60,6 +63,8 @@ enum LocationErrors: LocalizedError {
             return "Timeout"
         case .cancelled:
             return "Cancelled"
+        case .noLocation:
+            return "No location available"
         }
     }
 
