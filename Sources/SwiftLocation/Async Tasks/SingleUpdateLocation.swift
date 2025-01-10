@@ -58,11 +58,27 @@ extension Tasks {
 
         @MainActor
         func run() async throws -> ContinuousUpdateLocation.StreamEvent {
-            try await withCheckedThrowingContinuation { continuation in
+            return try await withCheckedThrowingContinuation { continuation in
                 guard let instance = self.instance else { return }
 
                 self.continuation = continuation
                 instance.asyncBridge.add(task: self)
+                let horizontalAccuracy = accuracyFilters?.first(where: { filter in
+                    switch filter {
+                        
+                    case .horizontal(_):
+                        return true
+                    default:
+                        return false
+                    }
+                })
+                if let horizontalAccuracy {
+                        if case .horizontal(let cLLocationAccuracy) = horizontalAccuracy {
+                            instance.locationManager.desiredAccuracy = cLLocationAccuracy
+                        }
+                        
+                    }
+                
                 instance.locationManager.requestLocation()
             }
         }

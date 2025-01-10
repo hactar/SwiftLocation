@@ -34,7 +34,7 @@ public final class Location {
     // MARK: - Private Properties
 
     /// Underlying location manager implementation.
-    private(set) var locationManager: LocationManagerProtocol
+    public var locationManager: LocationManagerProtocol
 
     /// Bridge for async/await communication via tasks.
     private(set) var asyncBridge = LocationAsyncBridge()
@@ -313,7 +313,7 @@ public final class Location {
         locationManager.desiredAccuracy = AccuracyFilters.highestAccuracyLevel(currentLevel: locationManager.desiredAccuracy, filters: filters)
         let task = Tasks.SingleUpdateLocation(instance: self, accuracy: filters, timeout: timeout)
         return try await withTaskCancellationHandler {
-            try await task.run()
+            return try await task.run()
         } onCancel: {
             Task { @MainActor in
                 asyncBridge.cancel(task: task)
