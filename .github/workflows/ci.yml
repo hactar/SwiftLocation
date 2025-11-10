@@ -23,7 +23,7 @@ jobs:
           xcode-version: '26.0.1'
       - name: Run Tests
         run: |
-          Scripts/test.sh -s "SwiftLocation" -d "platform=iOS Simulator,OS=26.0,name=iPhone 17 Pro"
+          Scripts/test.sh -s "SwiftLocation" -d "platform=iOS Simulator,name=iPhone 17 Pro"
  # macos-latest:
  #   name: Unit Tests (macOS, Xcode 14.3.1)
  #   runs-on: macOS-13
@@ -43,4 +43,4 @@ jobs:
           xcode-version: '26.0.1'
       - name: Run Tests
         run: |
-          Scripts/test.sh -s "SwiftLocation" -d "platform=tvOS Simulator,OS=26.0,name=Apple TV 4K (3rd generation)"
+          Scripts/test.sh -s "SwiftLocation" -d "platform=tvOS Simulator,name=Apple TV 4K (3rd generation)"
