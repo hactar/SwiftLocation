@@ -18,9 +18,9 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-xcode@v3
+      - uses: maxim-lobanov/setup-xcode@v1
         with:
-            xcode-version: '15.4'
+          xcode-version: '15.4'
       - name: Run Tests
         run: |
           Scripts/test.sh -s "SwiftLocation" -d "platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro"
@@ -38,9 +38,9 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-xcode@v3
+      - uses: maxim-lobanov/setup-xcode@v1
         with:
-            xcode-version: '15.4'
+          xcode-version: '15.4'
       - name: Run Tests
         run: |
           Scripts/test.sh -s "SwiftLocation" -d "platform=tvOS Simulator,OS=17.5,name=Apple TV 4K (3rd generation)"
