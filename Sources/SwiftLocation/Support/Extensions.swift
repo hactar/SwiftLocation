@@ -30,7 +30,8 @@ import CoreLocation
 
 extension CLLocationManager: LocationManagerProtocol {
 
-    public func locationServicesEnabled() -> Bool {
+    @concurrent
+    public func locationServicesEnabled() async -> Bool {
         CLLocationManager.locationServicesEnabled()
     }
 

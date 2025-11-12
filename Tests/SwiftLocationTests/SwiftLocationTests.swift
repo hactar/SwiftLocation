@@ -541,12 +541,14 @@ final class SwiftLocationTests: XCTestCase {
 
     private func simulateLocationServicesChanges() -> [Bool] {
         let sequence = [false, true, false, true, true, true, false] // only real changes are detected
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+        Task {
+            try await Task.sleep(for: .seconds(2))
             for value in sequence {
                 self.mockLocationManager.isLocationServicesEnabled = value
-                usleep(10)
+                print("New value: \(value)")
+                try await Task.sleep(for: .milliseconds(500))
             }
-        })
+        }
         return [false, true, false, true, false]
     }
 

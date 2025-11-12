@@ -63,13 +63,16 @@ extension Tasks {
 
         @MainActor
         func requestTemporaryPermission(purposeKey: String) async throws -> CLAccuracyAuthorization {
-            try await withCheckedThrowingContinuation { continuation in
+            guard let instance = self.instance else {
+                throw LocationErrors.noLocation
+            }
+            
+            guard await instance.locationManager.locationServicesEnabled() else {
+                throw LocationErrors.locationServicesDisabled
+            }
+            
+            return try await withCheckedThrowingContinuation { continuation in
                 guard let instance = self.instance else { return }
-
-                guard instance.locationManager.locationServicesEnabled() else {
-                    continuation.resume(throwing: LocationErrors.locationServicesDisabled)
-                    return
-                }
 
                 let authorizationStatus = instance.authorizationStatus
                 guard authorizationStatus != .notDetermined else {

@@ -137,7 +137,7 @@ public class MockedLocationManager: LocationManagerProtocol {
         }
     }
 
-    public func locationServicesEnabled() -> Bool {
+    public func locationServicesEnabled() async -> Bool {
         isLocationServicesEnabled
     }
 

@@ -46,7 +46,10 @@ final class LocationDelegate: NSObject, @preconcurrency CLLocationManagerDelegat
 
             asyncBridge?.dispatchEvent(.didChangeAuthorization(locationManager.authorizationStatus))
             asyncBridge?.dispatchEvent(.didChangeAccuracyAuthorization(locationManager.accuracyAuthorization))
-            asyncBridge?.dispatchEvent(.didChangeLocationEnabled(locationManager.locationServicesEnabled()))
+            Task {
+                let enabled = await locationManager.locationServicesEnabled()
+                asyncBridge?.dispatchEvent(.didChangeLocationEnabled(enabled))
+            }
 
     }
 
