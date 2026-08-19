@@ -33,24 +33,23 @@ final class LocationDelegate: NSObject, @preconcurrency CLLocationManagerDelegat
 
     private weak var asyncBridge: LocationAsyncBridge?
 
-    private var locationManager: LocationManagerProtocol {
-        asyncBridge!.location!.locationManager
-    }
-
     init(asyncBridge: LocationAsyncBridge) {
         self.asyncBridge = asyncBridge
         super.init()
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        guard let asyncBridge,
+              let locationManager = asyncBridge.location?.locationManager else {
+            return
+        }
 
-            asyncBridge?.dispatchEvent(.didChangeAuthorization(locationManager.authorizationStatus))
-            asyncBridge?.dispatchEvent(.didChangeAccuracyAuthorization(locationManager.accuracyAuthorization))
-            Task {
-                let enabled = await locationManager.locationServicesEnabled()
-                asyncBridge?.dispatchEvent(.didChangeLocationEnabled(enabled))
-            }
-
+        asyncBridge.dispatchEvent(.didChangeAuthorization(locationManager.authorizationStatus))
+        asyncBridge.dispatchEvent(.didChangeAccuracyAuthorization(locationManager.accuracyAuthorization))
+        Task { [weak asyncBridge] in
+            let enabled = await locationManager.locationServicesEnabled()
+            asyncBridge?.dispatchEvent(.didChangeLocationEnabled(enabled))
+        }
     }
 
     // MARK: - Location Updates

@@ -116,6 +116,21 @@ final class SwiftLocationTests: XCTestCase {
         }
     }
 
+    func testAuthorizationCallbackAfterLocationDeallocationDoesNotCrash() async {
+        let locationServicesChecked = XCTestExpectation()
+        mockLocationManager.onLocationServicesEnabled = {
+            locationServicesChecked.fulfill()
+            return true
+        }
+
+        weak let weakLocation = location
+        mockLocationManager.authorizationStatus = .restricted
+        location = nil
+
+        await fulfillment(of: [locationServicesChecked], timeout: 1)
+        XCTAssertNil(weakLocation)
+    }
+
     #if !os(tvOS)
     func testRequestAlwaysSuccess() async throws {
         do {

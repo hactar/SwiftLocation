@@ -66,6 +66,7 @@ public class MockedLocationManager: LocationManagerProtocol {
     public var onRequestWhenInUseAuthorization: (() -> CLAuthorizationStatus) = { .notDetermined }
     public var onRequestAlwaysAuthorization: (() -> CLAuthorizationStatus) = { .notDetermined }
     public var onRequestValidationForTemporaryAccuracy: ((String) -> Error?) = { _ in return nil }
+    public var onLocationServicesEnabled: (() async -> Bool)?
 
     public func updateLocations(event: Tasks.ContinuousUpdateLocation.StreamEvent) {
         switch event {
@@ -138,7 +139,10 @@ public class MockedLocationManager: LocationManagerProtocol {
     }
 
     public func locationServicesEnabled() async -> Bool {
-        isLocationServicesEnabled
+        if let onLocationServicesEnabled {
+            return await onLocationServicesEnabled()
+        }
+        return isLocationServicesEnabled
     }
 
     public func requestAlwaysAuthorization() {
